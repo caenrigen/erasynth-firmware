@@ -54,6 +54,7 @@ bool inProgress = false;
 int wifiMode = 1;
 bool isChecked = true;
 bool isInitiated = false;
+bool isDebugEnabled = true;
 bool isSent = false;
 
 void setup() 

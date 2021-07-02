@@ -107,16 +107,24 @@ void command(String commandBuffer)
 		//Wifi Mode
 		if (commandBuffer[2] == '0')  { wifiMode = 0; setWifi(); }
 		else if (commandBuffer[2] == '1') { wifiMode = 1; setWifi(); }
-    else if (commandBuffer[2] == '2') { wifiMode = 2; setWifi(); }
+		else if (commandBuffer[2] == '2') { wifiMode = 2; setWifi(); }
 
 		break;
 
-   case 'A':
+	case 'A':
 
-    isInitiated = true;
-    Serial.println(">XI");
-  
-   break;
+		isInitiated = true;
+		Serial.println(">XI");
+		break;
+
+	case 'D':
+		// Debug Messages (0=OFF; 1=ON)
+		isDebugEnabled = commandBuffer[2] - 48;
+		break;
+
+	isInitiated = true;
+	Serial.println(">XI");
+
+	break;
 	}
- 
 }
