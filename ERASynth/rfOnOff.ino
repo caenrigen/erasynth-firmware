@@ -20,7 +20,7 @@ void rfOnOff(int value)
 {
 	if (value == 0) //RF OFF
 	{
-		Serial.println("RF OFF");
+		if (isDebugEnabled) Serial.println("RF OFF");
 
 		digitalWrite(DC_6GHz_En, LOW);  //DC-6GHz Amp. is Disabled.
 		digitalWrite(X6_15GHz_En, LOW); //6-15GHz Amp. is Disabled.
@@ -35,7 +35,7 @@ void rfOnOff(int value)
 	}
 	else //RF ON 
 	{
-		Serial.println("RF ON");
+		if (isDebugEnabled) Serial.println("RF ON");
 		spiWrite_LMX(&LMX1_R0, LMX1_LE); // turn on LMX1
 		delay(10);
 		spiWrite_LMX(&LMX2_R0, LMX2_LE); // turn on LMX2

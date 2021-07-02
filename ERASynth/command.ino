@@ -42,7 +42,7 @@ void command(String commandBuffer)
 
 		if (commandInString.length() > _freqSize)
 		{
-			Serial.println("Limits exceeded");
+			if (isDebugEnabled) Serial.println("Limits exceeded");
 			return;
 		}
 
@@ -74,9 +74,7 @@ void command(String commandBuffer)
 
 		if (commandInString != frequency_Str) { frequency_Str = commandInString; setFRAM(_frequency, frequency_Str); }
 
-		Serial.print("Frequency: ");
-		Serial.print(frequency_Str);
-		Serial.println("Hz");
+		if (isDebugEnabled) {Serial.print("Frequency: "); Serial.print(frequency_Str); Serial.println("Hz");}
 
 		lastFrequency = frequency;
 
@@ -137,9 +135,7 @@ void command(String commandBuffer)
 				setFRAM(_amplitude, amplitude_Str);
 			}
 
-			Serial.print("Amplitude: ");
-			Serial.print(amplitude_Str);
-			Serial.println("dBm");
+            if (isDebugEnabled) {Serial.print("Amplitude: "); Serial.print(amplitude_Str); Serial.println("dBm");}
 
 			amplitude = floatAmpValue;
 			lastAmplitude = amplitude;
@@ -161,8 +157,7 @@ void command(String commandBuffer)
 		if (commandBuffer[2] == '1') { spiWrite_LMX(&LMX_RXX, LMX1_LE); }//LMX1
 		else if (commandBuffer[2] == '2') { spiWrite_LMX(&LMX_RXX, LMX2_LE); }//LMX2
 
-		Serial.print("LMX_RXX: ");
-		Serial.println(LMX_RXX, HEX);
+		if (isDebugEnabled) {Serial.print("LMX_RXX: "); Serial.println(LMX_RXX, HEX);}
 	}
 	else if (commandID == 'D')
 	{
@@ -181,8 +176,7 @@ void command(String commandBuffer)
 
 		DACValue = DAC_Value;
 
-		Serial.print("DAC Value: ");
-		Serial.println(DAC_Value);
+		if (isDebugEnabled) {Serial.print("DAC Value: "); Serial.println(DAC_Value);}
 
 		if (commandBuffer[2] == '1')
 		{
@@ -212,7 +206,7 @@ void command(String commandBuffer)
 
 		if (commandInString.length() > _freqSize)
 		{
-			Serial.println("Limits exceeded");
+			if (isDebugEnabled) Serial.println("Limits exceeded");
 			return;
 		}
 
@@ -321,14 +315,14 @@ void command(String commandBuffer)
 
 			if (isDebugEnabled) { Serial.println("Frequency Sweep: Started"); }
 
-      if (stopFrequency < startFrequency)
-      {
-        number_of_sweep_points = (startFrequency - stopFrequency) / stepFrequency;
-      }
-      else
-      {
-        number_of_sweep_points = (stopFrequency - startFrequency) / stepFrequency;
-      }
+			if (stopFrequency < startFrequency)
+			{
+				number_of_sweep_points = (startFrequency - stopFrequency) / stepFrequency;
+			}
+			else
+			{
+				number_of_sweep_points = (stopFrequency - startFrequency) / stepFrequency;
+			}
 
 			if (stopFrequency > 30e6 || startFrequency > 30e6)
 			{
@@ -461,9 +455,18 @@ void command(String commandBuffer)
 		}
 		else if (commandBuffer[2] == 'D')
 		{
-			// Debug Messages (0=OFF; 1=ON)
-			isDebugEnabled = commandBuffer[3] - 48;
-			Serial.print("Debug Messages Dis[0]/Enb[1]: "); Serial.println(String(isDebugEnabled));
+			if (commandBuffer[3] == 'E')
+			{
+				// Echo back received commands (0=OFF; 1=ON)
+				isEchoCommands = commandBuffer[4] - 48;
+				if (isEchoCommands) {Serial.print("Echo Command Dis[0]/Enb[1]: "); Serial.println(String(isEchoCommands));}
+			}
+			else
+			{
+				// Debug Messages (0=OFF; 1=ON)
+				isDebugEnabled = commandBuffer[3] - 48;
+				if (isDebugEnabled) {Serial.print("Debug Messages Dis[0]/Enb[1]: "); Serial.println(String(isDebugEnabled));}
+			}
 		}
 		else if (commandBuffer[2] == 'M')
 		{
@@ -502,13 +505,13 @@ void command(String commandBuffer)
 				{
 					esp8266OnOff_Str = String(commandBuffer[4]);
 					setFRAM(_esp8266OnOff, esp8266OnOff_Str);
-  
-          if(esp8266OnOff_Str == "1")
-          { 
-            delay(250);
-            Serial1.println("<A");
-            delay(250);
-          }       
+
+					if(esp8266OnOff_Str == "1")
+					{
+						delay(250);
+						Serial1.println("<A");
+						delay(250);
+					}
 				}
 				if (isDebugEnabled) { Serial.print("ESP8266 Off[0]/On[1]: "); Serial.println(esp8266OnOff_Str); }
 			}
@@ -610,7 +613,7 @@ void command(String commandBuffer)
 
 			if (lastFrequency >= 0.25e6 && lastFrequency <= 30e6 && isLowPhaseNoiseActive)
 			{
-				Serial.println("Low phase mode can not be activated in frequency range 250 kHz to 30 MHz");
+				if (isDebugEnabled) Serial.println("Low phase mode can not be activated in frequency range 250 kHz to 30 MHz");
 				isLowPhaseNoiseActive = false;
 			}
 
@@ -620,7 +623,7 @@ void command(String commandBuffer)
 				digitalWrite(SW2, LOW);
 				// Send LMX1 Mute 
 				spiWrite_LMX(&LMX1_R0_mute, LMX1_LE);
-				Serial.println("Ultra Low Phase Noise mode is active");
+				if (isDebugEnabled) Serial.println("Ultra Low Phase Noise mode is active");
 				delay(50);
 			}
 			else
@@ -630,7 +633,7 @@ void command(String commandBuffer)
 				// Wake up LMX1
 				spiWrite_LMX(&LMX1_R0, LMX1_LE);
 				delay(50);
-				Serial.println("Ultra Low Phase Noise mode is inactive");
+				if (isDebugEnabled) Serial.println("Ultra Low Phase Noise mode is inactive");
 			}
 
 			phaseNoise_Str = isLowPhaseNoiseActive ? "1" : "0";
@@ -650,9 +653,7 @@ void command(String commandBuffer)
 			if (phaseShift < 0) { phaseShift = 0; }
 			if (phaseShift > 360) { phaseShift = 360; }
 
-			Serial.print("Phase Shift : ");
-			Serial.print(phaseShift);
-			Serial.println(" Only works in Low Phase Noise Mode");
+            if (isDebugEnabled) {Serial.print("Phase Shift : "); Serial.print(phaseShift); Serial.println(" Only works in Low Phase Noise Mode");}
 
 			shiftPhase(phaseShift);
 		}
@@ -731,7 +732,7 @@ void command(String commandBuffer)
 
 			if (commandInString.length() > _internalModulationFreq[1])
 			{
-				Serial.println("Limits exceeded");
+				if (isDebugEnabled) Serial.println("Limits exceeded");
 				return;
 			}
 
@@ -753,7 +754,7 @@ void command(String commandBuffer)
 
 			if (commandInString.length() > _fmDeviation[1])
 			{
-				Serial.println("Limits exceeded");
+				if (isDebugEnabled) Serial.println("Limits exceeded");
 				return;
 			}
 
@@ -775,7 +776,7 @@ void command(String commandBuffer)
 
 			if (commandInString.length() > _amDepth[1])
 			{
-				Serial.println("Limits exceeded");
+				if (isDebugEnabled) Serial.println("Limits exceeded");
 				return;
 			}
 
@@ -802,7 +803,7 @@ void command(String commandBuffer)
 
 			if (commandInString.length() > _pulsePeriod[1])
 			{
-				Serial.println("Limits exceeded");
+				if (isDebugEnabled) Serial.println("Limits exceeded");
 				return;
 			}
 
@@ -826,7 +827,7 @@ void command(String commandBuffer)
 
 			if (commandInString.length() > _pulseWidth[1])
 			{
-				Serial.println("Limits exceeded");
+				if (isDebugEnabled) Serial.println("Limits exceeded");
 				return;
 			}
 
@@ -1014,7 +1015,7 @@ void command(String commandBuffer)
 			vals[27][0] = "wifi_subnet_address";
 			vals[27][1] = subnetAddress_Str;
 
-      phaseNoise_Str = isLowPhaseNoiseActive ? "1" : "0";
+            phaseNoise_Str = isLowPhaseNoiseActive ? "1" : "0";
 
 			vals[28][0] = "phase_noise_mode";
 			vals[28][1] = phaseNoise_Str;
@@ -1185,7 +1186,7 @@ void command(String commandBuffer)
 		digitalWrite(Wi_Fi_RST, HIGH);
 		delay(100);
 		digitalWrite(Wi_Fi_Flash, HIGH); //The ESP8266 is now in flash mode. It is able to upload the sketch.
-		Serial.println("The ESP8266 can be programmed! Please close the COM Port");
+		if (isDebugEnabled) Serial.println("The ESP8266 can be programmed! Please close the COM Port");
 		delay(100);
 		Serial.begin(57600); //initialize Serial Comm.(RX0, TX0)
 
@@ -1198,7 +1199,7 @@ void command(String commandBuffer)
 		if (commandBuffer[2] == 'I')
 		{
 			isInitESP8266Done = true;
-			Serial.println("ESP is initiated...");
+			if (isDebugEnabled) Serial.println("ESP is initiated...");
 		}
 		else
 		{
@@ -1208,7 +1209,7 @@ void command(String commandBuffer)
 			digitalWrite(Wi_Fi_RST, HIGH);
 			delay(500);
 			Serial1.println("<A");
-			Serial.println("ESP8266 RESET is done!");
+			if (isDebugEnabled) Serial.println("ESP8266 RESET is done!");
 		}
 	}
 }

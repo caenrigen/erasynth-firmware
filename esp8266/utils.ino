@@ -145,10 +145,10 @@ String formatBytes(size_t bytes)
 
 void debugPrint(String input)
 {
-  if(isInitiated){ Serial.print(input); }
+  if(isInitiated & isDebugEnabled){ Serial.print(input); }
 }
 
 void debugPrintln(String input)
 {
-  if(isInitiated){ Serial.println(input); }
+  if(isInitiated & isDebugEnabled){ Serial.println(input); }
 }

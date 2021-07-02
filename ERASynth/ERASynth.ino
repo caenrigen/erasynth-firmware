@@ -71,7 +71,7 @@ float lastAmplitude = 0;
 uint8_t modType = WBFM_Mod;
 uint8_t modSource = Internal;
 uint8_t waveformType = Sine;
-uint8_t ERASynthModel = 1;
+uint8_t ERASynthModel = ERASynth;
 uint8_t LMX2_PFD_DLY_SEL = 2;
 uint8_t previous_LMX2_PFD_DLY_SEL = 0;
 
@@ -101,6 +101,7 @@ boolean is_modulation_stopped = true;
 boolean is_modulation_paused = true;
 boolean sweepTriggerMode = false;
 boolean isDebugEnabled = true;
+boolean isEchoCommands = true;
 boolean pulse_condition = true;
 boolean is_sweep_stopped = true;
 boolean isLowPowerModeActive = false;
@@ -129,7 +130,7 @@ boolean isPulseRising = false;
 boolean is_pulse_changed = false;
 
 String ESP8266FirmwareVersion_Str = "";
-String embeddedVersion_Str = "v1.0.18";
+String embeddedVersion_Str = "v1.1.0";
 String cmdString = "";
 String cmd1String = "";
 String frequency_Str = "";
@@ -178,7 +179,7 @@ uint32_t frequencyValues[7];
 // [3] CHDIV
 // [4] ODIV
 // [5] VCO FREQ (HIGH)
-// [6] VCO FREQ (LOW)					
+// [6] VCO FREQ (LOW)
 
 void setup()
 {
@@ -194,14 +195,14 @@ void setup()
 	pinMode(Wi_Fi_RST, OUTPUT);
 
 	digitalWrite(Wi_Fi_Flash, HIGH);
-	digitalWrite(Wi_Fi_PD, HIGH);  // Power-up Wi-Fi 
+	digitalWrite(Wi_Fi_PD, HIGH);  // Power-up Wi-Fi
 	digitalWrite(Wi_Fi_RST, HIGH); // Normal operation
 
 	//TCXO Power-up
 	pinMode(TCXO_En, OUTPUT);
 	digitalWrite(TCXO_En, HIGH);
 
-	//OCXO Power-down  
+	//OCXO Power-down
 	pinMode(OCXO_En, OUTPUT);
 	digitalWrite(OCXO_En, LOW);
 
@@ -367,7 +368,7 @@ void setup()
 
 
 	checkVersion();
-	   
+
 	if (getFRAM(_isUploadCodeModeActive) == "1")
 	{
 		isUploadCodeModeActive = true;
@@ -381,7 +382,7 @@ void setup()
 	Serial.print("Embedded Version: ");
 	Serial.println(embeddedVersion_Str);
 
-	ERASynthModel_Str = String(ERASynth);
+	ERASynthModel_Str = String(ERASynthModel);
 
 	Serial.print("ERASynth Model: ");
 	if (ERASynth == 0) { Serial.println("ERASynth");   BandPoint = 6000e6; }
@@ -389,11 +390,11 @@ void setup()
 	else if (ERASynth == 2) { Serial.println("ERASynth++"); BandPoint = 4500e6; }
 
 	serialNumber_Str = getFRAM(_serialNumber);
-	
+
 	Serial.print("Serial Number: ");
 	Serial.println(serialNumber_Str);
 
-	// Remember the last states through reading FRAM 
+	// Remember the last states through reading FRAM
 	rememberLastStates_Str = getFRAM(_rememberLastStates);
 
 	if (rememberLastStates_Str == "1")
@@ -479,6 +480,7 @@ void loop()
 	{
 		stringComplete = false;
 		command(cmdString);
+		if (isEchoCommands) Serial.println(cmdString);
 		cmdString = "";
 		isCmdExist = false;
 		return;

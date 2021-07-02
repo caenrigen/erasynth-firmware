@@ -17,7 +17,7 @@
 */
 
 
-#define ERASynth 2
+#define ERASynth 1
 // Make DEBUG = 1 to write faster when debugging. This will avoid amplitude calibration files to written in flash therefore ouput power is going to be maximum.
 #define DEBUG 0
 #define max_DAC_Value 4095
