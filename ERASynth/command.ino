@@ -459,7 +459,7 @@ void command(String commandBuffer)
 			{
 				// Echo back received commands (0=OFF; 1=ON)
 				isEchoCommands = commandBuffer[4] - 48;
-				if (isEchoCommands) {Serial.print("Echo Command Dis[0]/Enb[1]: "); Serial.println(String(isEchoCommands));}
+				if (isDebugEnabled) {Serial.print("Echo Command Dis[0]/Enb[1]: "); Serial.println(String(isEchoCommands));}
 			}
 			else
 			{
